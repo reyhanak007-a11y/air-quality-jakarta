@@ -35,7 +35,7 @@
                     </div>
                     <div class="metric-card">
                         <h3>F1-Score</h3>
-                        <div class="metric-value">{{ "%.2f"|format(results.f1_score * 100) }}%</div>
+                        <div class="metric-value">{{ "%.2f"|format(results.f1 * 100) }}%</div>
                         <div class="metric-description">Rata-rata harmonis dari presisi dan recall</div>
                     </div>
                 </div>
@@ -112,12 +112,13 @@
     </div>
     
     <script>
-        // Chart untuk feature importance
         document.addEventListener('DOMContentLoaded', function() {
-            const features = {{ results.feature_importance|tojson|safe }};
-            const featureNames = features.map(f => f.feature);
-            const importances = features.map(f => f.importance);
-            
+            const features = {{ results.feature_importance | tojson | safe }};
+
+            // Karena datanya dictionary, bukan array
+            const featureNames = Object.keys(features);
+            const importances = Object.values(features);
+
             const ctx = document.getElementById('featureImportanceChart').getContext('2d');
             new Chart(ctx, {
                 type: 'bar',
@@ -159,5 +160,6 @@
             });
         });
     </script>
+
 </body>
 </html>
