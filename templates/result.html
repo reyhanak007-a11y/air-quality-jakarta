@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Prediksi - Kualitas Udara Jakarta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .category-baik { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .category-sedang { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .category-tidak-sehat { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .category-sangat-tidak-sehat { background-color: #e29ab9; color: #6a1b4d; border: 1px solid #d984a9; }
+        .category-berbahaya { background-color: #c97070; color: #4a1414; border: 1px solid #c05555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hasil Prediksi Kualitas Udara</h1>
+            <p>Hasil analisis berdasarkan parameter yang Anda masukkan</p>
+        </header>
+        
+        <main>
+            <div class="card">
+                <h2>Parameter yang Dimasukkan</h2>
+                <div class="input-summary">
+                    {% for key, value in input_data.items() %}
+                    <div class="input-item">
+                        <span class="input-label">{{ key }}:</span>
+                        <span class="input-value">{{ value }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="card result-card category-{{ category.lower().replace(' ', '-') }}">
+                <h2>Hasil Prediksi</h2>
+                <div class="prediction-display">
+                    <div class="prediction-category">
+                        Kualitas Udara: <strong>{{ category }}</strong>
+                    </div>
+                    <div class="prediction-confidence">
+                        Tingkat Keyakinan: <strong>{{ "%.1f"|format(confidence) }}%</strong>
+                    </div>
+                </div>
+                
+                <div class="recommendations">
+                    <h3>Rekomendasi Kesehatan</h3>
+                    <ul>
+                        {% for rec in recommendations %}
+                        <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/" class="btn-secondary">↺ Prediksi Lagi</a>
+                <button class="btn-primary" onclick="window.print()">Cetak Hasil</button>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2025 Sistem Prediksi Kualitas Udara | Dibuat dengan Flask & Machine Learning</p>
+        </footer>
+    </div>
+</body>
+</html>

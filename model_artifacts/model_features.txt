@@ -1,0 +1,14 @@
+pm10
+pm25
+so2
+co
+o3
+no2
+suhu
+kelembaban
+kecepatan_angin
+heat_index
+bulan
+hari
+jam
+hari_minggu

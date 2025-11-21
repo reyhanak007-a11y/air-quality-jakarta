@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Training Model - Prediksi Kualitas Udara</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hasil Training Model</h1>
+            <p>Evaluasi performa model Decision Tree untuk klasifikasi kualitas udara</p>
+        </header>
+        
+        <main>
+            <div class="card">
+                <h2>Metrik Evaluasi Model</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3>Akurasi</h3>
+                        <div class="metric-value">{{ "%.2f"|format(results.accuracy * 100) }}%</div>
+                        <div class="metric-description">Proporsi prediksi yang benar secara keseluruhan</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Presisi</h3>
+                        <div class="metric-value">{{ "%.2f"|format(results.precision * 100) }}%</div>
+                        <div class="metric-description">Kemampuan model menghindari false positive</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Recall</h3>
+                        <div class="metric-value">{{ "%.2f"|format(results.recall * 100) }}%</div>
+                        <div class="metric-description">Kemampuan model menemukan semua kasus positif</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>F1-Score</h3>
+                        <div class="metric-value">{{ "%.2f"|format(results.f1_score * 100) }}%</div>
+                        <div class="metric-description">Rata-rata harmonis dari presisi dan recall</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Confusion Matrix</h2>
+                <div class="confusion-matrix-container">
+                    <table class="confusion-matrix">
+                        <thead>
+                            <tr>
+                                <th colspan="2" rowspan="2"></th>
+                                <th colspan="3">Prediksi</th>
+                            </tr>
+                            <tr>
+                                <th>Baik</th>
+                                <th>Sedang</th>
+                                <th>Tidak Sehat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th rowspan="3">Aktual</th>
+                                <th>Baik</th>
+                                <td>{{ results.confusion_matrix[0][0] }}</td>
+                                <td>{{ results.confusion_matrix[0][1] }}</td>
+                                <td>{{ results.confusion_matrix[0][2] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Sedang</th>
+                                <td>{{ results.confusion_matrix[1][0] }}</td>
+                                <td>{{ results.confusion_matrix[1][1] }}</td>
+                                <td>{{ results.confusion_matrix[1][2] }}</td>
+                            </tr>
+                            <tr>
+                                <th>Tidak Sehat</th>
+                                <td>{{ results.confusion_matrix[2][0] }}</td>
+                                <td>{{ results.confusion_matrix[2][1] }}</td>
+                                <td>{{ results.confusion_matrix[2][2] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="note">Confusion Matrix menunjukkan distribusi prediksi benar dan salah pada setiap kategori</p>
+            </div>
+            
+            <div class="card">
+                <h2>Feature Importance</h2>
+                <div class="chart-container">
+                    <canvas id="featureImportanceChart" width="400" height="300"></canvas>
+                </div>
+                <p class="note">Grafik di atas menunjukkan pentingnya setiap fitur dalam proses prediksi model</p>
+            </div>
+            
+            <div class="card">
+                <h2>Parameter Model</h2>
+                <div class="params-grid">
+                    {% for key, value in results.model_params.items() %}
+                    <div class="param-item">
+                        <span class="param-name">{{ key.replace('_', ' ').title() }}:</span>
+                        <span class="param-value">{{ value }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="training-time">
+                    <strong>Waktu Training:</strong> {{ results.training_time }}
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2025 Sistem Prediksi Kualitas Udara | Dibuat dengan Flask & Machine Learning</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Chart untuk feature importance
+        document.addEventListener('DOMContentLoaded', function() {
+            const features = {{ results.feature_importance|tojson|safe }};
+            const featureNames = features.map(f => f.feature);
+            const importances = features.map(f => f.importance);
+            
+            const ctx = document.getElementById('featureImportanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: featureNames,
+                    datasets: [{
+                        label: 'Feature Importance',
+                        data: importances,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nilai Importance'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Fitur'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Pentingnya Setiap Fitur dalam Prediksi'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediksi Kualitas Udara Jakarta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Prediksi Kualitas Udara Jakarta</h1>
+            <p>Masukkan parameter lingkungan untuk mendapatkan prediksi kualitas udara secara real-time</p>
+            
+            <nav class="main-nav">
+                <a href="/" class="nav-item active">Beranda</a>
+                <a href="/training-results" class="nav-item">Hasil Training</a>
+                <a href="https://github.com/username/air-quality-app" target="_blank" class="nav-item">Kode Sumber</a>
+            </nav>
+        </header>
+        
+        <main>
+            <div class="card">
+                {% if error %}
+                <div class="alert error">
+                    <strong>Error:</strong> {{ error }}
+                </div>
+                {% endif %}
+                
+                <form id="prediction-form" action="/predict" method="POST">
+                    <div class="form-grid">
+                        <!-- Kolom kiri - Parameter Polutan -->
+                        <div class="form-column">
+                            <h3>Parameter Polutan</h3>
+                            <div class="form-group">
+                                <label for="pm10">PM10 (μg/m³)</label>
+                                <input type="number" id="pm10" name="pm10" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pm25">PM2.5 (μg/m³)</label>
+                                <input type="number" id="pm25" name="pm25" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="so2">SO2 (μg/m³)</label>
+                                <input type="number" id="so2" name="so2" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="co">CO (mg/m³)</label>
+                                <input type="number" id="co" name="co" step="0.1" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Kolom kanan - Parameter Cuaca -->
+                        <div class="form-column">
+                            <h3>Parameter Cuaca</h3>
+                            <div class="form-group">
+                                <label for="o3">O3 (μg/m³)</label>
+                                <input type="number" id="o3" name="o3" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="no2">NO2 (μg/m³)</label>
+                                <input type="number" id="no2" name="no2" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="suhu">Suhu (°C)</label>
+                                <input type="number" id="suhu" name="suhu" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="kelembaban">Kelembaban (%)</label>
+                                <input type="number" id="kelembaban" name="kelembaban" min="0" max="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="kecepatan_angin">Kecepatan Angin (m/s)</label>
+                                <input type="number" id="kecepatan_angin" name="kecepatan_angin" step="0.1" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Prediksi Kualitas Udara</button>
+                </form>
+            </div>
+            
+            <div class="info-card">
+                <h3>Cara Penggunaan</h3>
+                <ol>
+                    <li>Masukkan nilai parameter polutan dan cuaca sesuai pengukuran Anda</li>
+                    <li>Klik tombol "Prediksi Kualitas Udara"</li>
+                    <li>Lihat hasil prediksi beserta rekomendasi kesehatan yang sesuai</li>
+                </ol>
+                
+                <div class="example-values">
+                    <h4>Contoh Nilai Default:</h4>
+                    <ul>
+                        <li><strong>PM10:</strong> 75 μg/m³ (partikel debu berukuran ≤10 µm yang masuk ke saluran pernapasan atas)</li>
+                        <li><strong>PM2.5:</strong> 55 μg/m³ (partikel sangat halus ≤2.5 µm yang bisa masuk jauh ke paru-paru, paling berbahaya)</li>
+                        <li><strong>SO2:</strong> 20 μg/m³ (sulfur dioksida dari pembakaran industri/kendaraan yang mengiritasi pernapasan)</li>
+                        <li><strong>CO:</strong> 3.5 mg/m³ (karbon monoksida dari pembakaran tidak sempurna; mengurangi kemampuan darah membawa oksigen)</li>
+                        <li><strong>O3:</strong> 40 μg/m³ (ozon permukaan dari reaksi polutan di bawah sinar matahari; tinggi → mengiritasi paru)</li>
+                        <li><strong>NO2:</strong> 30 μg/m³ (nitrogen dioksida dari kendaraan & industri; memicu peradangan paru)</li>
+                        <li><strong>Suhu:</strong> 28°C (temperatur udara saat pengukuran)</li>
+                        <li><strong>Kelembaban:</strong> 75% (kadar uap air dalam udara)</li>
+                        <li><strong>Kecepatan Angin:</strong> 2.5 m/s (kecepatan angin yang mempengaruhi penyebaran polutan)</li>
+                    </ul>
+
+                    <p class="note">* Nilai-nilai di atas hanya sebagai contoh. Sesuaikan dengan kondisi aktual di lokasi Anda.</p>
+                </div>
+                
+                <p class="note">* Data cuaca seperti suhu dan kelembaban bisa diperoleh dari aplikasi cuaca di ponsel Anda atau situs BMKG</p>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2025 Sistem Prediksi Kualitas Udara | Dibuat dengan Flask & Machine Learning</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Validasi client-side sederhana
+        document.getElementById('prediction-form').addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll('input[type="number"][required]');
+            let valid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value || input.value.trim() === '') {
+                    valid = false;
+                    input.classList.add('error-border');
+                } else {
+                    input.classList.remove('error-border');
+                }
+            });
+            
+            if (!valid) {
+                e.preventDefault();
+                alert('Silakan isi semua field yang wajib diisi');
+            }
+        });
+    </script>
+</body>
+</html>
